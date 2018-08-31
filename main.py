@@ -1,10 +1,11 @@
 #!/usr/local/bin python
 # -*- coding:utf-8 -+-
-import csv
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
-DATAFILE_NAME = "infomation.csv"
+import csv
+READFILE_NAME = "infomation.csv"
+WRITETFILE_NAME = "qtable_category.csv"
 
 class main:
     def __init__(self):
@@ -13,7 +14,7 @@ class main:
         route_length = []
         route_rotation = []
         route_possibility = []
-        with open(DATAFILE_NAME, 'r') as o:
+        with open(READFILE_NAME, 'r') as o:
             dataReader = csv.reader(o)
             for row in dataReader:
                 filename.append(row[0])
@@ -26,24 +27,66 @@ class main:
         y = self.zscore(route_rotation)
         z = self.zscore(route_possibility)
 
+        #8つのcategoryに分ける
+        """
+        ①route_lengthの長い、短い
+        ②route_rotationの多い、少ない
+        ③route_possibilityの多い、少ない
+
+        ①・②・③
+        長・多・多：category0
+        長・多・少：category1
+        長・少・多：category2
+        長・少・少：category3
+        短・多・多：category4
+        短・多・少：category5
+        短・少・多：category6
+        短・少・少：category7
+        """
+        category_data = []
+        for i in range(0,len(filename)):
+            if x[i] >= 0 and y[i] >= 0 and z[i] >= 0:
+                category_data.append([filename[i],0])
+            elif x[i] >= 0 and y[i] >= 0 and z[i] < 0:
+                category_data.append([filename[i], 1])
+            elif x[i] >= 0 and y[i] < 0 and z[i] >= 0:
+                category_data.append([filename[i], 2])
+            elif x[i] >= 0 and y[i] < 0 and z[i] < 0:
+                category_data.append([filename[i], 3])
+            elif x[i] < 0 and y[i] >= 0 and z[i] >= 0:
+                category_data.append([filename[i], 4])
+            elif x[i] < 0 and y[i] >= 0 and z[i] < 0:
+                category_data.append([filename[i], 5])
+            elif x[i] < 0 and y[i] < 0 and z[i] >= 0:
+                category_data.append([filename[i], 6])
+            elif x[i] < 0 and y[i] < 0 and z[i] < 0:
+                category_data.append([filename[i], 7])
+        self.write_category(WRITETFILE_NAME,category_data)
+        """
+        #3Dプロット
         fig = plt.figure()
         ax = Axes3D(fig)
-        #プロット
         ax.scatter3D(np.ravel(x),np.ravel(y),np.ravel(z))
         ax.set_xlabel("route_length")
         ax.set_ylabel("route_rotation")
         ax.set_zlabel("route_possibility")
-        
         #プロットにテキスト表示（重い）
         for (i,s) in enumerate(zip(x,y,z)):
             ax.text(s[0],s[1],s[2],str(i),size=7)
         plt.show()
-
+        """
+        
     def zscore(self,x, axis = None):
         xmean = np.mean(x,axis=axis, keepdims=True)
         xstd  = np.std(x, axis=axis, keepdims=True)
         zscore = (x-xmean)/xstd
         return zscore
 
+    def write_category(self, _filename, _data):
+        with open(_filename, mode="w") as w:
+            writer = csv.writer(w, lineterminator='\n')
+            writer.writerows(_data)
+        return 1
+    
 if __name__ == '__main__':
     main()
