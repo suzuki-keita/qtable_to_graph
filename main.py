@@ -4,8 +4,14 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
-READFILE_NAME = "infomation.csv"
-WRITETFILE_NAME = "qtable_category.csv"
+import sys
+args = sys.argv
+if len(args) == 3:
+    READFILE_NAME = args[1]
+    WRITEFILE_NAME = args[2]
+else:
+    print("Error! 第一引数にREADFILE_NAME,第二引数にWRITEFILE_NAME")
+    sys.exit(1)
 
 class main:
     def __init__(self):
@@ -22,7 +28,7 @@ class main:
                 route_rotation.append(float(row[2]))
                 route_possibility.append(float(row[3]))
     
-        #正規化
+        #標準化
         x = self.zscore(route_length)
         y = self.zscore(route_rotation)
         z = self.zscore(route_possibility)
@@ -61,8 +67,8 @@ class main:
                 category_data.append([filename[i], 6])
             elif x[i] < 0 and y[i] < 0 and z[i] < 0:
                 category_data.append([filename[i], 7])
-        self.write_category(WRITETFILE_NAME,category_data)
-        """
+        self.write_category(WRITEFILE_NAME, category_data)
+
         #3Dプロット
         fig = plt.figure()
         ax = Axes3D(fig)
@@ -71,10 +77,12 @@ class main:
         ax.set_ylabel("route_rotation")
         ax.set_zlabel("route_possibility")
         #プロットにテキスト表示（重い）
+        """
         for (i,s) in enumerate(zip(x,y,z)):
             ax.text(s[0],s[1],s[2],str(i),size=7)
-        plt.show()
         """
+        plt.show()
+ 
         
     def zscore(self,x, axis = None):
         xmean = np.mean(x,axis=axis, keepdims=True)
