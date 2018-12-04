@@ -11,6 +11,8 @@ X_NORM = 0.26621526175145216
 Y_NORM = -0.13772006553375682
 Z_NORM = -0.1213336553313068
 
+FOLDER = "/Users/takashi/Documents/knowledge/rated_maps/"
+
 if len(args) == 3:
     READFILE_NAME = args[1]
     WRITEFILE_NAME = args[2]
@@ -21,18 +23,36 @@ else:
 class main:
     def __init__(self):
         #範囲と間隔の設定
-        filename = []
+        qtable_filename = []
+        step_filename = []
         route_length = []
         route_rotation = []
         route_possibility = []
+        episodes = []
         with open(READFILE_NAME, 'r') as o:
             dataReader = csv.reader(o)
             for row in dataReader:
-                filename.append(row[0])
+                qtable_filename.append(FOLDER + "qtable/" + str(row[0]))
                 route_length.append(float(row[1]))
                 route_rotation.append(float(row[2]))
                 route_possibility.append(float(row[3]))
-    
+                name = FOLDER + "step/step" + str(row[0][6:])
+                print name
+                step_filename.append(name)
+                with open(name, 'r') as o:
+                    dataReaders = csv.reader(o)
+                    steps = []
+                    for rows in dataReaders:
+                        steps.append(int(rows[1]))
+                    print steps
+                    i = 0
+                    while (True):
+                        if steps[i] == steps[i+1] and steps[i] == steps[i+2] and steps[i] == steps[i+3] and steps[i] == steps[i+4]:
+                            episodes.append(i)
+                            break
+                        i = i + 1
+                        
+
         #標準化
         x = self.zscore(route_length)
         y = self.zscore(route_rotation)
@@ -55,23 +75,23 @@ class main:
         短・少・少：category7
         """
         category_data = []
-        for i in range(0,len(filename)):
+        for i in range(0,len(qtable_filename)):
             if x[i] >= X_NORM and y[i] >= Y_NORM and z[i] >= Z_NORM:
-                category_data.append([filename[i],0])
+                category_data.append([qtable_filename[i],0,step_filename[i],episodes[i]])
             elif x[i] >= X_NORM and y[i] >= Y_NORM and z[i] < Z_NORM:
-                category_data.append([filename[i], 1])
+                category_data.append([qtable_filename[i], 1,step_filename[i],episodes[i]])
             elif x[i] >= X_NORM and y[i] < Y_NORM and z[i] >= Z_NORM:
-                category_data.append([filename[i], 2])
+                category_data.append([qtable_filename[i], 2,step_filename[i],episodes[i]])
             elif x[i] >= X_NORM and y[i] < Y_NORM and z[i] < Z_NORM:
-                category_data.append([filename[i], 3])
+                category_data.append([qtable_filename[i], 3,step_filename[i],episodes[i]])
             elif x[i] < X_NORM and y[i] >= Y_NORM and z[i] >= Z_NORM:
-                category_data.append([filename[i], 4])
+                category_data.append([qtable_filename[i], 4,step_filename[i],episodes[i]])
             elif x[i] < X_NORM and y[i] >= Y_NORM and z[i] < Z_NORM:
-                category_data.append([filename[i], 5])
+                category_data.append([qtable_filename[i], 5,step_filename[i],episodes[i]])
             elif x[i] < X_NORM and y[i] < Y_NORM and z[i] >= Z_NORM:
-                category_data.append([filename[i], 6])
+                category_data.append([qtable_filename[i], 6,step_filename[i],episodes[i]])
             elif x[i] < X_NORM and y[i] < Y_NORM and z[i] < Z_NORM:
-                category_data.append([filename[i], 7])
+                category_data.append([qtable_filename[i], 7,step_filename[i],episodes[i]])
         self.write_category(WRITEFILE_NAME, category_data)
 
         #3Dプロット
@@ -95,8 +115,8 @@ class main:
         zscore = (x-xmean)/xstd
         return zscore
 
-    def write_category(self, _filename, _data):
-        with open(_filename, mode="w") as w:
+    def write_category(self, _qtable_filename, _data):
+        with open(_qtable_filename, mode="w") as w:
             writer = csv.writer(w, lineterminator='\n')
             writer.writerows(_data)
         return 0
