@@ -7,9 +7,14 @@ import csv
 import sys
 
 args = sys.argv
+"""
 X_NORM = 0.26621526175145216
 Y_NORM = -0.13772006553375682
 Z_NORM = -0.1213336553313068
+"""
+X_NORM = 0
+Y_NORM = 0
+Z_NORM = 0
 
 if len(args) == 3:
     READFILE_NAME = args[1]

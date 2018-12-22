@@ -7,9 +7,14 @@ import csv
 import sys
 
 args = sys.argv
+"""
 X_NORM = 0.26621526175145216
 Y_NORM = -0.13772006553375682
 Z_NORM = -0.1213336553313068
+"""
+X_NORM = 0
+Y_NORM = 0
+Z_NORM = 0
 
 FOLDER = "/Users/takashi/Documents/knowledge/rated_maps/"
 
@@ -28,7 +33,7 @@ class main:
         route_length = []
         route_rotation = []
         route_possibility = []
-        episodes = []
+        total_step = []
         with open(READFILE_NAME, 'r') as o:
             dataReader = csv.reader(o)
             for row in dataReader:
@@ -39,18 +44,12 @@ class main:
                 name = FOLDER + "step/step" + str(row[0][6:])
                 print name
                 step_filename.append(name)
+                step = 0
                 with open(name, 'r') as o:
                     dataReaders = csv.reader(o)
-                    steps = []
                     for rows in dataReaders:
-                        steps.append(int(rows[1]))
-                    print steps
-                    i = 0
-                    while (True):
-                        if steps[i] == steps[i+1] and steps[i] == steps[i+2] and steps[i] == steps[i+3] and steps[i] == steps[i+4]:
-                            episodes.append(i)
-                            break
-                        i = i + 1
+                        step += int(rows[1])
+                total_step.append(step)
                         
 
         #標準化
@@ -77,21 +76,21 @@ class main:
         category_data = []
         for i in range(0,len(qtable_filename)):
             if x[i] >= X_NORM and y[i] >= Y_NORM and z[i] >= Z_NORM:
-                category_data.append([qtable_filename[i],0,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i],0,step_filename[i],total_step[i]])
             elif x[i] >= X_NORM and y[i] >= Y_NORM and z[i] < Z_NORM:
-                category_data.append([qtable_filename[i], 1,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 1,step_filename[i],total_step[i]])
             elif x[i] >= X_NORM and y[i] < Y_NORM and z[i] >= Z_NORM:
-                category_data.append([qtable_filename[i], 2,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 2,step_filename[i],total_step[i]])
             elif x[i] >= X_NORM and y[i] < Y_NORM and z[i] < Z_NORM:
-                category_data.append([qtable_filename[i], 3,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 3,step_filename[i],total_step[i]])
             elif x[i] < X_NORM and y[i] >= Y_NORM and z[i] >= Z_NORM:
-                category_data.append([qtable_filename[i], 4,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 4,step_filename[i],total_step[i]])
             elif x[i] < X_NORM and y[i] >= Y_NORM and z[i] < Z_NORM:
-                category_data.append([qtable_filename[i], 5,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 5,step_filename[i],total_step[i]])
             elif x[i] < X_NORM and y[i] < Y_NORM and z[i] >= Z_NORM:
-                category_data.append([qtable_filename[i], 6,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 6,step_filename[i],total_step[i]])
             elif x[i] < X_NORM and y[i] < Y_NORM and z[i] < Z_NORM:
-                category_data.append([qtable_filename[i], 7,step_filename[i],episodes[i]])
+                category_data.append([qtable_filename[i], 7,step_filename[i],total_step[i]])
         self.write_category(WRITEFILE_NAME, category_data)
 
         #3Dプロット
